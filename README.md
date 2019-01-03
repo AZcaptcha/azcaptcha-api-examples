@@ -1,6 +1,6 @@
 Hi!
 
-Here you can find some code examples for AZcaptcha
+Here you can find some code examples for https://AZcaptcha
 
 API description is available in English 
 
