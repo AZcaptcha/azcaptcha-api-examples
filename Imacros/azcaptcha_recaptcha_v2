@@ -1,0 +1,50 @@
+'NOTE: Please remember that it's just an example of code, it's not a ready to use solution.
+'And you have change the code to adopt it for your task.
+
+SET api_key "1abc234de56fab7c89012d34e56fa7b8"
+SET !EXTRACT_TEST_POPUP NO
+SET !ERRORIGNORE YES
+SET !TIMEOUT_PAGE 1
+<<<<<<< HEAD
+
+URL GOTO=https://www.google.com/recaptcha/api2/demo
+WAIT SECONDS=0.5
+
+URL GOTO = javascript:(function(){g=document.getElementById('g-recaptcha-response');%20g.setAttribute('myatt1',window.location.href);%20g.setAttribute('myatt2',document.getElementById('recaptcha-demo').attributes['data-sitekey'].value);})();
+
+TAG POS=1 TYPE=* ATTR=ID:g-recaptcha-response EXTRACT=HTM
+SET pgurl EVAL("'{{!EXTRACT}}'.match(/myatt1=[\"'](.+?)[\"']/)[1];")
+SET gkey EVAL("'{{!EXTRACT}}'.match(/myatt2=[\"'](.+?)[\"']/)[1];")
+=======
+'SET !TIMEOUT_STEP 1
+URL GOTO=javascript:((function(){var%20a=window.content.document.getElementsByTagName('iframe');%20%20var%20k='';%20%20for(var%20x=0;x<a.length;x++)%20%20{%20%20%20if(a[x].src.includes('https://www.google.com/recaptcha/api2/anchor?k'))%20%20%20{%20%20%20%20k=a[x].src.split('?k=')[1].split('&')[0];%20%20%20%20a[x].setAttribute("name","I0_myownid");%20%20%20%20window.content.document.getElementById('g-recaptcha-response').style.display='';%20%20%20%20break;%20%20%20}%20%20}%20%20window.content.document.getElementById('g-recaptcha-response').textContent='';}))();
+SET !TIMEOUT_PAGE 60
+TAG POS=1 TYPE=TEXTAREA FORM=ID:* ATTR=ID:g-recaptcha-response EXTRACT=TXT
+SET k {{!EXTRACT}}
+>>>>>>> 2f134a92b0355a559b740dc289df773baf28368f
+SET !EXTRACT NULL
+
+TAB OPEN
+TAB T=2
+'Submit the captcha
+URL GOTO=http://azcaptcha.com/in.php?key={{api_key}}&method=userrecaptcha&googlekey={{gkey}}&pageurl={{pgurl}}
+WAIT SECONDS=1
+TAG POS=1 TYPE=* ATTR=TXT:* EXTRACT=TXT
+SET captid EVAL("var s=\"{{!EXTRACT}}\"; s.split(' ')[0].split('|')[1]")
+SET !EXTRACT NULL
+'Get the answer
+URL GOTO= http://azcaptcha.com/res.php?key={{api_key}}&action=get&id={{captid}}
+'Wait for the answer
+WAIT SECONDS=120
+REFRESH
+TAG POS=1 TYPE=* ATTR=TXT:* EXTRACT=TXT
+SET answer EVAL("var s=\"{{!EXTRACT}}\"; s.split(' ')[0].split('|')[1]")
+SET !EXTRACT {{answer}}
+TAB CLOSE
+WAIT SECONDS=0.5
+TAG POS=1 TYPE=TEXTAREA FORM=ID:* ATTR=ID:g-recaptcha-response CONTENT={{answer}}
+'Execute the callback
+URL GOTO = javascript:onSuccess();
+WAIT SECONDS=0.5
+'Submit form
+TAG POS=1 TYPE=INPUT:SUBMIT FORM=ID:recaptcha-demo-form ATTR=ID:recaptcha-demo-submit

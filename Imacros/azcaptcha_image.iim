@@ -1,0 +1,11 @@
+﻿TAB T=1
+SET key YourAPIKey
+SET captcha D:\captchaimage.png
+URL GOTO=https://azcaptcha.com/imacros/image
+TAG POS=1 TYPE=INPUT ATTR=NAME:key CONTENT={{key}}
+TAG POS=1 TYPE=INPUT ATTR=NAME:file  CONTENT={{captcha}}
+TAG POS=1 TYPE=INPUT ATTR=TYPE:submit
+SET !EXTRACT_TEST_POPUP NO
+SET !TIMEOUT_STEP 360
+TAG POS=1 TYPE=INPUT ATTR=NAME:result EXTRACT=TXT
+PROMPT {{!EXTRACT}}
